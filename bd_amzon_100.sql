@@ -1,0 +1,388 @@
+DROP TABLE IF EXISTS USER_REG_ENDR CASCADE;
+DROP TABLE IF EXISTS WL_ARMZ_PROD CASCADE;
+DROP TABLE IF EXISTS PROD_COMP_PEDD CASCADE;
+DROP TABLE IF EXISTS PROD_PTNC_CATG CASCADE;
+DROP TABLE IF EXISTS AVALIACAO CASCADE;
+DROP TABLE IF EXISTS MENSAGEM CASCADE;
+DROP TABLE IF EXISTS PEDIDO CASCADE;
+DROP TABLE IF EXISTS CHAT CASCADE;
+DROP TABLE IF EXISTS WISHLIST CASCADE;
+DROP TABLE IF EXISTS CATEGORIA CASCADE;
+DROP TABLE IF EXISTS PRODUTO CASCADE;
+DROP TABLE IF EXISTS USUARIO CASCADE;
+DROP TABLE IF EXISTS ENTREGA CASCADE;
+DROP TABLE IF EXISTS PAGAMENTO CASCADE;
+DROP TABLE IF EXISTS CUPOM CASCADE;
+DROP TABLE IF EXISTS ENDERECO CASCADE;
+DROP TABLE IF EXISTS ASSINATURA CASCADE;
+DROP TABLE IF EXISTS LOJA CASCADE;
+DROP SEQUENCE IF EXISTS pagamento_seq CASCADE;
+DROP SEQUENCE IF EXISTS entrega_seq CASCADE;
+DROP SEQUENCE IF EXISTS pedido_seq CASCADE;
+DROP SEQUENCE IF EXISTS chat_seq CASCADE;
+DROP SEQUENCE IF EXISTS mensagem_seq CASCADE;
+DROP SEQUENCE IF EXISTS avaliacao_seq CASCADE;
+
+CREATE SEQUENCE pagamento_seq START WITH 101;
+CREATE SEQUENCE entrega_seq  START WITH 101;
+CREATE SEQUENCE pedido_seq   START WITH 101;
+CREATE SEQUENCE chat_seq     START WITH 101;
+CREATE SEQUENCE mensagem_seq START WITH 101;
+CREATE SEQUENCE avaliacao_seq START WITH 101;
+
+CREATE TABLE IF NOT EXISTS LOJA (
+    ID_Loja INT NOT NULL,
+    Nome_Loja VARCHAR(50),
+    Email_Loja VARCHAR(50) UNIQUE,
+    CPF_CNPJ_Loja VARCHAR(20) UNIQUE,
+    Reput_Loja FLOAT,
+    Data_Criac_Loja DATE,
+    CONSTRAINT PK_LOJA PRIMARY KEY (ID_Loja)
+);
+
+CREATE TABLE IF NOT EXISTS ASSINATURA (
+    ID_Ass INT NOT NULL,
+    Prec_Ass FLOAT,
+    Free_Frete BOOLEAN DEFAULT FALSE,
+    Nome_Ass VARCHAR(50),
+    CONSTRAINT PK_ASSINATURA PRIMARY KEY (ID_Ass)
+);
+
+CREATE TABLE IF NOT EXISTS ENDERECO (
+    ID_Endr INT NOT NULL,
+    CEP_Endr VARCHAR(20),
+    Cid_Endr VARCHAR(50),
+    Est_Endr VARCHAR(50),
+    Pais_Endr VARCHAR(50),
+    Rua_Endr VARCHAR(50),
+    Num_Endr INT,
+    CONSTRAINT PK_ENDERECO PRIMARY KEY (ID_Endr)
+);
+
+CREATE TABLE IF NOT EXISTS CUPOM (
+    ID_Cupom INT NOT NULL,
+    Val_Min_Cupom FLOAT,
+    Val_Cupom FLOAT,
+    Tipo_Cupom VARCHAR(10),
+    CONSTRAINT PK_CUPOM PRIMARY KEY (ID_Cupom)
+);
+
+CREATE TABLE IF NOT EXISTS PAGAMENTO (
+    ID_Pag INT NOT NULL,
+    Form_Pag VARCHAR(10),
+    Val_Pag FLOAT,
+    Stat_Pag VARCHAR(10),
+    CONSTRAINT PK_PAGAMENTO PRIMARY KEY (ID_Pag)
+);
+
+CREATE TABLE IF NOT EXISTS ENTREGA (
+    ID_Entg INT NOT NULL,
+    Codg_Rast_Entg VARCHAR(20),
+    Transp_Entg VARCHAR(50),
+    Data_Entg DATE,
+    CONSTRAINT PK_ENTREGA PRIMARY KEY (ID_Entg)
+);
+
+CREATE TABLE IF NOT EXISTS USUARIO (
+    ID_User INT NOT NULL,
+    Nome_User VARCHAR(50),
+    Email_User VARCHAR(50) UNIQUE,
+    CPF_CNPJ_User VARCHAR(20) UNIQUE,
+    fk_ASSINATURA INT,
+    CONSTRAINT PK_USUARIO PRIMARY KEY (ID_User),
+    CONSTRAINT FK_USER_ASSINATURA FOREIGN KEY (fk_ASSINATURA) REFERENCES ASSINATURA(ID_Ass)
+);
+
+CREATE TABLE IF NOT EXISTS PRODUTO (
+    Prod_ID INT NOT NULL,
+    Nome_Prod VARCHAR(50),
+    Prec_Prod FLOAT,
+    Desc_Prod TEXT,
+    Marca_Prod VARCHAR(50),
+    Model_Prod VARCHAR(50),
+    Estoq_Prod INT,
+    Tipo_Prod VARCHAR(20),
+    fk_LOJA INT NOT NULL,
+    CONSTRAINT PK_PRODUTO PRIMARY KEY (Prod_ID),
+    CONSTRAINT FK_PROD_LOJA FOREIGN KEY (fk_LOJA) REFERENCES LOJA(ID_Loja)
+);
+
+CREATE TABLE IF NOT EXISTS CATEGORIA (
+    ID_Catg INT NOT NULL,
+    Nome_Catg VARCHAR(50),
+    fk_CATEGORIA INT,
+    CONSTRAINT PK_CATEGORIA PRIMARY KEY (ID_Catg),
+    CONSTRAINT FK_CATG_PAI FOREIGN KEY (fk_CATEGORIA) REFERENCES CATEGORIA(ID_Catg)
+);
+
+CREATE TABLE IF NOT EXISTS WISHLIST (
+    ID_WL INT NOT NULL,
+    Nome_WL VARCHAR(50),
+    Visib_WL VARCHAR(10),
+    fk_USUARIO INT NOT NULL,
+    CONSTRAINT PK_WISHLIST PRIMARY KEY (ID_WL),
+    CONSTRAINT FK_WL_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User)
+);
+
+CREATE TABLE IF NOT EXISTS CHAT (
+    ID_Chat INT NOT NULL,
+    Stat_Chat VARCHAR(10),
+    Open_Chat TIMESTAMP,
+    fk_LOJA INT NOT NULL,
+    fk_USUARIO INT NOT NULL,
+    CONSTRAINT PK_CHAT PRIMARY KEY (ID_Chat),
+    CONSTRAINT FK_CHAT_LOJA FOREIGN KEY (fk_LOJA) REFERENCES LOJA(ID_Loja),
+    CONSTRAINT FK_CHAT_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User)
+);
+
+CREATE TABLE IF NOT EXISTS PEDIDO (
+    ID_Pedd INT NOT NULL,
+    Stat_Pedd VARCHAR(20),
+    timestamp_Pedd TIMESTAMP,
+    fk_PAGAMENTO INT NOT NULL,
+    fk_ENTREGA INT,
+    fk_USUARIO INT NOT NULL,
+    fk_CUPOM INT,
+    fk_ENDERECO INT NOT NULL,
+    CONSTRAINT PK_PEDIDO PRIMARY KEY (ID_Pedd),
+    CONSTRAINT FK_PEDD_PAGAMENTO FOREIGN KEY (fk_PAGAMENTO) REFERENCES PAGAMENTO(ID_Pag),
+    CONSTRAINT FK_PEDD_ENTREGA FOREIGN KEY (fk_ENTREGA) REFERENCES ENTREGA(ID_Entg),
+    CONSTRAINT FK_PEDD_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User),
+    CONSTRAINT FK_PEDD_CUPOM FOREIGN KEY (fk_CUPOM) REFERENCES CUPOM(ID_Cupom),
+    CONSTRAINT FK_PEDD_ENDERECO FOREIGN KEY (fk_ENDERECO) REFERENCES ENDERECO(ID_Endr) 
+);
+
+CREATE TABLE IF NOT EXISTS MENSAGEM (
+    ID_Msg INT NOT NULL,
+    Data_hora_Msg TIMESTAMP,
+    Conteudo_Msg VARCHAR(200),
+    fk_LOJA INT,
+    fk_USUARIO INT,
+    fk_CHAT INT NOT NULL,
+    CONSTRAINT PK_MENSAGEM PRIMARY KEY (ID_Msg),
+    CONSTRAINT FK_MSG_LOJA FOREIGN KEY (fk_LOJA) REFERENCES LOJA(ID_Loja),
+    CONSTRAINT FK_MSG_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User),
+    CONSTRAINT FK_MSG_CHAT FOREIGN KEY (fk_CHAT) REFERENCES CHAT(ID_Chat)
+);
+
+CREATE TABLE IF NOT EXISTS AVALIACAO (
+    ID_Av INT NOT NULL,
+    Nota_Av INT,
+    Coment_Av VARCHAR(200),
+    Ref_Av VARCHAR(10),
+    Data_Av DATE,
+    fk_LOJA INT,
+    fk_PRODUTO INT,
+    fk_USUARIO INT NOT NULL,
+    CONSTRAINT PK_AVALIACAO PRIMARY KEY (ID_Av),
+    CONSTRAINT FK_AV_LOJA FOREIGN KEY (fk_LOJA) REFERENCES LOJA(ID_Loja),
+    CONSTRAINT FK_AV_PRODUTO FOREIGN KEY (fk_PRODUTO) REFERENCES PRODUTO(Prod_ID),
+    CONSTRAINT FK_AV_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User)
+);
+
+CREATE TABLE IF NOT EXISTS PROD_PTNC_CATG (
+    fk_CATEGORIA INT NOT NULL,
+    fk_PRODUTO INT NOT NULL,
+    CONSTRAINT PK_PROD_PTNC_CATG PRIMARY KEY (fk_CATEGORIA, fk_PRODUTO),
+    CONSTRAINT FK_PTNC_CATEGORIA FOREIGN KEY (fk_CATEGORIA) REFERENCES CATEGORIA(ID_Catg),
+    CONSTRAINT FK_PTNC_PRODUTO FOREIGN KEY (fk_PRODUTO) REFERENCES PRODUTO(Prod_ID)
+);
+
+CREATE TABLE IF NOT EXISTS PROD_COMP_PEDD (
+    Quant_Prod INT,
+    fk_PEDIDO INT NOT NULL,
+    fk_PRODUTO INT NOT NULL,
+    CONSTRAINT PK_PROD_COMP_PEDD PRIMARY KEY (fk_PEDIDO, fk_PRODUTO),
+    CONSTRAINT FK_COMP_PEDIDO FOREIGN KEY (fk_PEDIDO) REFERENCES PEDIDO(ID_Pedd),
+    CONSTRAINT FK_COMP_PRODUTO FOREIGN KEY (fk_PRODUTO) REFERENCES PRODUTO(Prod_ID)
+);
+
+CREATE TABLE IF NOT EXISTS WL_ARMZ_PROD (
+    fk_PRODUTO INT NOT NULL,
+    fk_WISHLIST INT NOT NULL,
+    CONSTRAINT PK_WL_ARMZ_PROD PRIMARY KEY (fk_PRODUTO, fk_WISHLIST),
+    CONSTRAINT FK_ARMZ_PRODUTO FOREIGN KEY (fk_PRODUTO) REFERENCES PRODUTO(Prod_ID),
+    CONSTRAINT FK_ARMZ_WISHLIST FOREIGN KEY (fk_WISHLIST) REFERENCES WISHLIST(ID_WL)
+);
+
+CREATE TABLE IF NOT EXISTS USER_REG_ENDR (
+    fk_ENDERECO INT NOT NULL,
+    fk_USUARIO INT NOT NULL,
+    CONSTRAINT PK_USER_REG_ENDR PRIMARY KEY (fk_ENDERECO, fk_USUARIO),
+    CONSTRAINT FK_REG_ENDERECO FOREIGN KEY (fk_ENDERECO) REFERENCES ENDERECO(ID_Endr),
+    CONSTRAINT FK_REG_USUARIO FOREIGN KEY (fk_USUARIO) REFERENCES USUARIO(ID_User)
+);
+
+-- INSERÇÃO DOS DADOS AUTOMATIZADOS
+
+INSERT INTO LOJA (ID_Loja, Nome_Loja, Email_Loja, CPF_CNPJ_Loja, Reput_Loja, Data_Criac_Loja)
+SELECT 
+    i AS ID_Loja,
+    'Loja Parceira ' || i AS Nome_Loja,
+    'contato@loja' || i || '.com.br' AS Email_Loja,
+    LPAD(i::text, 14, '0') AS CPF_CNPJ_Loja,
+    ROUND((2 + (RANDOM() * 3))::numeric, i % 2 + 1) AS Reput_Loja,
+    '2020-01-01'::DATE + i AS Data_Criac_Loja
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO ASSINATURA (ID_Ass, Prec_Ass, Free_Frete, Nome_Ass)
+SELECT 
+    i AS ID_Ass,
+    ROUND((19.90 + (i * 1.5))::numeric, 2) AS Prec_Ass,
+    CASE WHEN i % 2 = 0 THEN TRUE ELSE FALSE END AS Free_Frete,
+    'Plano Premium Nível ' || i AS Nome_Ass
+FROM generate_series(1, 10) AS i;
+
+INSERT INTO ENDERECO (ID_Endr, CEP_Endr, Cid_Endr, Est_Endr, Pais_Endr, Rua_Endr, Num_Endr)
+SELECT 
+    i AS ID_Endr,
+    '22000-' || LPAD(i::text, 3, '0') AS CEP_Endr,
+    CASE WHEN i % 2 = 0 THEN 'São Paulo' ELSE 'Rio de Janeiro' END AS Cid_Endr,
+    CASE WHEN i % 2 = 0 THEN 'SP' ELSE 'RJ' END AS Est_Endr,
+    'Brasil' AS Pais_Endr,
+    'Rua Principal de Testes, Bloco ' || i AS Rua_Endr,
+    i * 10 AS Num_Endr
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO CUPOM (ID_Cupom, Val_Min_Cupom, Val_Cupom, Tipo_Cupom)
+SELECT 
+    i AS ID_Cupom,
+    30.00 + (i * 5) AS Val_Min_Cupom,
+    1.00 + (i * 0.5) AS Val_Cupom,
+    CASE WHEN i % 2 = 0 THEN 'Fixo' ELSE 'Porcent' END AS Tipo_Cupom
+FROM generate_series(1, 10) AS i;
+
+INSERT INTO PAGAMENTO (ID_Pag, Form_Pag, Val_Pag, Stat_Pag)
+SELECT 
+    i AS ID_Pag,
+    (ARRAY['Pix', 'Crédito', 'Débito', 'Boleto'])[MOD(i, 4) + 1] AS Form_Pag,
+    ROUND((RANDOM() * 500 + 20)::numeric, 2) AS Val_Pag,
+    CASE WHEN i % 10 = 0 THEN 'Not Done' ELSE 'Done' END AS Stat_Pag
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO ENTREGA (ID_Entg, Codg_Rast_Entg, Transp_Entg, Data_Entg)
+SELECT 
+    i AS ID_Entg,
+    'TRACK' || LPAD(i::text, 5, '0') AS Codg_Rast_Entg,
+    CASE WHEN i % 2 = 0 THEN 'Loggi' ELSE 'Correios' END AS Transp_Entg,
+    '2026-01-01'::DATE + i AS Data_Entg
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO USUARIO (ID_User, Nome_User, Email_User, CPF_CNPJ_User, fk_ASSINATURA)
+SELECT 
+    i AS ID_User,
+    'Usuário Fictício ' || i AS Nome_User,
+    'usuario' || i || '@email.com' AS Email_User,
+    LPAD(i::text, 11, '0') AS CPF_CNPJ_User,
+    i % 10 + 1 AS fk_ASSINATURA
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO PRODUTO (Prod_ID, Nome_Prod, Prec_Prod, Desc_Prod, Marca_Prod, Model_Prod, Estoq_Prod, Tipo_Prod, fk_LOJA)
+SELECT 
+    i AS Prod_ID,
+    'Produto SKU ' || i AS Nome_Prod,
+    ROUND((RANDOM() * i * 10 + 15)::numeric, 2) AS Prec_Prod,
+    'Descrição automatizada do produto modelo número ' || i AS Desc_Prod,
+    CASE WHEN i % 2 = 0 THEN 'Marca Alpha' ELSE 'Marca Beta' END AS Marca_Prod,
+    'Modelo V' || i AS Model_Prod,
+    i + 5 AS Estoq_Prod,
+    'físico' AS Tipo_Prod,
+    i AS fk_LOJA
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO CATEGORIA (ID_Catg, Nome_Catg, fk_CATEGORIA)
+SELECT 
+    i AS ID_Catg,
+    'Categoria ' || i AS Nome_Catg,
+    CASE WHEN i > 10 THEN (i % 10) + 1 ELSE NULL END AS fk_CATEGORIA
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO WISHLIST (ID_WL, Nome_WL, Visib_WL, fk_USUARIO)
+SELECT 
+    i AS ID_WL,
+    'Minha Lista Nº ' || i AS Nome_WL,
+    CASE WHEN i % 2 = 0 THEN 'pública' ELSE 'privada' END AS Visib_WL,
+    i AS fk_USUARIO
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO CHAT (ID_Chat, Stat_Chat, Open_Chat, fk_LOJA, fk_USUARIO)
+SELECT 
+    i AS ID_Chat,
+    CASE WHEN i % 3 = 0 THEN 'closed' ELSE 'open' END AS Stat_Chat,
+    '2026-02-01'::TIMESTAMP + (i || ' hours')::INTERVAL AS Open_Chat,
+    i AS fk_LOJA,
+    i AS fk_USUARIO
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO PEDIDO (ID_Pedd, Stat_Pedd, timestamp_Pedd, fk_PAGAMENTO, fk_ENTREGA, fk_USUARIO, fk_CUPOM, fk_ENDERECO)
+SELECT 
+    i AS ID_Pedd,
+    (ARRAY['entregue', 'pago', 'enviado', 'cancelado', 'em processamento'])[MOD(i, 5) + 1] AS Stat_Pedd,
+    '2026-03-01'::TIMESTAMP + (i || ' days')::INTERVAL AS timestamp_Pedd,
+    i AS fk_PAGAMENTO,
+    i AS fk_ENTREGA,
+    i AS fk_USUARIO,
+    i % 10 + 1 AS fk_CUPOM,
+    i AS fk_ENDERECO 
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO MENSAGEM (ID_Msg, Data_hora_Msg, Conteudo_Msg, fk_LOJA, fk_USUARIO, fk_CHAT)
+SELECT 
+    i AS ID_Msg,
+    '2026-02-01'::TIMESTAMP + (i || ' hours 5 minutes')::INTERVAL AS Data_hora_Msg,
+    'Mensagem automática de suporte registrada no protocolo #' || i AS Conteudo_Msg,
+    CASE WHEN i % 2 = 0 THEN i ELSE NULL END AS fk_LOJA,
+    CASE WHEN i % 2 != 0 THEN i ELSE NULL END AS fk_USUARIO,
+    i AS fk_CHAT
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO AVALIACAO (ID_Av, Nota_Av, Coment_Av, Ref_Av, Data_Av, fk_LOJA, fk_PRODUTO, fk_USUARIO)
+SELECT 
+    i AS ID_Av,
+    (MOD(i, 5) + 1) AS Nota_Av,
+    'Feedback automatizado sobre a experiência de ID ' || i AS Coment_Av,
+    CASE WHEN i % 2 = 0 THEN 'Produto' ELSE 'Loja' END AS Ref_Av,
+    '2026-04-01'::DATE + i AS Data_Av,
+    CASE WHEN i % 2 != 0 THEN i ELSE NULL END AS fk_LOJA,
+    CASE WHEN i % 2 = 0 THEN i ELSE NULL END AS fk_PRODUTO,
+    i AS fk_USUARIO
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO PROD_PTNC_CATG (fk_CATEGORIA, fk_PRODUTO)
+SELECT 
+    i AS fk_CATEGORIA,
+    i AS fk_PRODUTO
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO PROD_COMP_PEDD (Quant_Prod, fk_PEDIDO, fk_PRODUTO)
+SELECT 
+    (MOD(i, 3) + 1) AS Quant_Prod,
+    i AS fk_PEDIDO,
+    i AS fk_PRODUTO
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO WL_ARMZ_PROD (fk_PRODUTO, fk_WISHLIST)
+SELECT 
+    i AS fk_PRODUTO,
+    i AS fk_WISHLIST
+FROM generate_series(1, 100) AS i;
+
+INSERT INTO USER_REG_ENDR (fk_ENDERECO, fk_USUARIO)
+SELECT 
+    i AS fk_ENDERECO,
+    i AS fk_USUARIO
+FROM generate_series(1, 100) AS i;
+
+--======================================================================================================================
+
+EXPLAIN ANALYZE
+SELECT Prod_ID, Nome_Prod, Prec_Prod, Marca_Prod
+FROM PRODUTO
+WHERE Marca_Prod = 'Marca Alpha' AND Prec_Prod > 100.00;
+
+CREATE INDEX idx_produto_marca_preco ON PRODUTO (Marca_Prod, Prec_Prod);
+
+EXPLAIN ANALYZE
+SELECT Prod_ID, Nome_Prod, Prec_Prod, Marca_Prod
+FROM PRODUTO
+WHERE Marca_Prod = 'Marca Alpha' AND Prec_Prod > 100.00;

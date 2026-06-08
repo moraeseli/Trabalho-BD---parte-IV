@@ -1,29 +1,30 @@
 def avaliar(conn):
-    id_usuario = input("Seu ID de usuário: ")
+    id_usuario = input("\nSeu ID de usuário: ")
     cursor = conn.cursor()
 
     # Valida usuário
     cursor.execute("SELECT ID_User FROM USUARIO WHERE ID_User = %s", (id_usuario,))
     if not cursor.fetchone():
-        print("Usuário não encontrado.")
+        print("\nUsuário não encontrado.")
         return
 
-    print("\nO que deseja avaliar?")
+    print("\n=== AVALIAR ===")
+    print("O que deseja avaliar?")
     print("[1] Produto")
     print("[2] Loja")
-    tipo = input("Escolha: ")
+    tipo = input("\nEscolha: ")
 
     # Valida nota
     try:
-        nota = int(input("Nota (1 a 5): "))
+        nota = int(input("\nNota (1 a 5): "))
         if nota < 1 or nota > 5:
-            print("Nota deve ser entre 1 e 5.")
+            print("\nNota deve ser entre 1 e 5.")
             return
     except ValueError:
-        print("Nota inválida.")
+        print("\nNota inválida.")
         return
 
-    comentario = input("Comentário: ")
+    comentário = input("\nComentário: ")
 
     try:
         if tipo == "1":
@@ -52,13 +53,13 @@ def avaliar(conn):
             return
 
         conn.commit()
-        print("Avaliação registrada!")
+        print("\nAvaliacão registrada!")
     except Exception as e:
         conn.rollback()
-        print(f"Erro ao avaliar: {e}")
+        print(f"\nErro ao avaliar: {e}")
 
 def avaliacoes_loja(conn):
-    loja_id = int(input("ID da loja: "))
+    loja_id = int(input("\nID da loja: "))
     while True:
         print("\n=== MINHAS AVALIAÇÕES ===")
         print("[1] Ver todas as avaliações")
@@ -78,12 +79,12 @@ def avaliacoes_loja(conn):
             """, (loja_id,))
             avaliacoes = cursor.fetchall()
             if not avaliacoes:
-                print("Nenhuma avaliação encontrada.")
+                print("\nNenhuma avaliação encontrada.")
             for a in avaliacoes:
                 print(f"Nota: {a[0]} | {a[2]} | {a[3]}: {a[1]}")
 
         elif opcao == "2":
-            nota = int(input("Nota (1 a 5): "))
+            nota = int(input("\nNota (1 a 5): "))
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT a.Nota_Av, a.Coment_Av, a.Data_Av, u.Nome_User
@@ -94,11 +95,11 @@ def avaliacoes_loja(conn):
             """, (loja_id, nota))
             avaliacoes = cursor.fetchall()
             if not avaliacoes:
-                print("Nenhuma avaliação encontrada.")
+                print("\nNenhuma avaliação encontrada.")
             for a in avaliacoes:
                 print(f"Nota: {a[0]} | {a[2]} | {a[3]}: {a[1]}")
 
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")

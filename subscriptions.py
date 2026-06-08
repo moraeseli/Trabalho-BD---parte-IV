@@ -7,18 +7,18 @@ def gerenciar_assinaturas(conn):
         print("[4] Remover assinatura")
         print("[5] Ver usuários de uma assinatura")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             cursor = conn.cursor()
             cursor.execute("SELECT ID_Ass, Nome_Ass, Prec_Ass, Free_Frete FROM ASSINATURA")
+            print("\n--- Lista de Assinaturas ---")
             for a in cursor.fetchall():
                 frete = "Sim" if a[3] else "Não"
                 print(f"[{a[0]}] {a[1]} | R${a[2]:.2f} | Frete grátis: {frete}")
 
         elif opcao == "2":
-            nome   = input("Nome: ")
+            nome   = input("\nNome: ")
             preco  = float(input("Preço: "))
             frete  = input("Frete grátis? (s/n): ").lower() == "s"
             try:
@@ -28,21 +28,21 @@ def gerenciar_assinaturas(conn):
                     VALUES (%s, %s, %s)
                 """, (nome, preco, frete))
                 conn.commit()
-                print("Assinatura criada!")
+                print("\nAssinatura criada!")
             except Exception as e:
                 conn.rollback()
-                print(f"Erro: {e}")
+                print(f"\nErro: {e}")
 
         elif opcao == "3":
-            ass_id = int(input("ID da assinatura: "))
+            ass_id = int(input("\nID da assinatura: "))
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM ASSINATURA WHERE ID_Ass = %s", (ass_id,))
             a = cursor.fetchone()
             if not a:
-                print("Assinatura não encontrada.")
+                print("\nAssinatura não encontrada.")
                 continue
 
-            print("Deixe em branco para manter o valor atual.")
+            print("\nDeixe em branco para manter o valor atual.")
             nome  = input(f"Nome [{a[1]}]: ")  or a[1]
             preco = input(f"Preço [{a[2]}]: ") or a[2]
             frete = input(f"Frete grátis [{a[3]}] (s/n): ")
@@ -54,35 +54,35 @@ def gerenciar_assinaturas(conn):
                     WHERE ID_Ass=%s
                 """, (nome, preco, frete, ass_id))
                 conn.commit()
-                print("Assinatura atualizada!")
+                print("\nAssinatura atualizada!")
             except Exception as e:
                 conn.rollback()
-                print(f"Erro: {e}")
+                print(f"\nErro: {e}")
 
         elif opcao == "4":
-            ass_id = int(input("ID da assinatura: "))
+            ass_id = int(input("\nID da assinatura: "))
             cursor = conn.cursor()
             cursor.execute("SELECT Nome_Ass FROM ASSINATURA WHERE ID_Ass = %s", (ass_id,))
             a = cursor.fetchone()
             if not a:
-                print("Assinatura não encontrada.")
+                print("\nAssinatura não encontrada.")
                 continue
 
-            confirmacao = input(f"Confirma remoção de '{a[0]}'? (s/n): ")
-            if confirmacao.lower() != "s":
-                print("Cancelado.")
+            confirmação = input(f"\nConfirma remoção de '{a[0]}'? (s/n): ")
+            if confirmação.lower() != "s":
+                print("\nCancelado.")
                 continue
 
             try:
                 cursor.execute("DELETE FROM ASSINATURA WHERE ID_Ass = %s", (ass_id,))
                 conn.commit()
-                print("Assinatura removida!")
+                print("\nAssinatura removida!")
             except Exception as e:
                 conn.rollback()
-                print(f"Erro: {e}")
+                print(f"\nErro: {e}")
 
         elif opcao == "5":
-            ass_id = int(input("ID da assinatura: "))
+            ass_id = int(input("\nID da assinatura: "))
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT u.ID_User, u.Nome_User, u.Email_User
@@ -91,11 +91,13 @@ def gerenciar_assinaturas(conn):
             """, (ass_id,))
             usuarios = cursor.fetchall()
             if not usuarios:
-                print("Nenhum usuário com essa assinatura.")
-            for u in usuarios:
-                print(f"[{u[0]}] {u[1]} | {u[2]}")
+                print("\nNenhum usuário com essa assinatura.")
+            else:
+                print("\n--- Usuários ---")
+                for u in usuarios:
+                    print(f"[{u[0]}] {u[1]} | {u[2]}")
 
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")

@@ -1,37 +1,40 @@
 def ver_produtos(conn):
     while True:
+        print("\n=== VER PRODUTOS ===")
         print("[1] Listar todos")
         print("[2] Filtrar por categoria")
         print("[3] Filtrar por preço")
         print("[4] Buscar por nome")
         print("[5] Ver detalhes de um produto")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             cursor = conn.cursor()
             cursor.execute("SELECT Prod_ID, Nome_Prod, Prec_Prod, Marca_Prod, Estoq_Prod FROM PRODUTO")
+            print("\n--- Listagem de Produtos ---")
             for p in cursor.fetchall():
                 print(f"[{p[0]}] {p[1]} - R${p[2]:.2f} | Marca: {p[3]} | Estoque: {p[4]}")
 
         elif opcao == "2":
             cursor = conn.cursor()
             cursor.execute("SELECT ID_Catg, Nome_Catg FROM CATEGORIA")
+            print("\n--- Categorias ---")
             for c in cursor.fetchall():
                 print(f"[{c[0]}] {c[1]}")
-            cat = input("ID da categoria: ")
+            cat = input("\nID da categoria: ")
             cursor.execute("""
                 SELECT p.Prod_ID, p.Nome_Prod, p.Prec_Prod, p.Marca_Prod
                 FROM PRODUTO p
                 JOIN PROD_PTNC_CATG pc ON pc.fk_PRODUTO = p.Prod_ID
                 WHERE pc.fk_CATEGORIA = %s
             """, (cat,))
+            print("\n--- Produtos da Categoria ---")
             for p in cursor.fetchall():
                 print(f"[{p[0]}] {p[1]} - R${p[2]:.2f} | Marca: {p[3]}")
 
         elif opcao == "3":
-            minimo = input("Preço mínimo (Enter para 0): ") or "0"
+            minimo = input("\nPreço mínimo (Enter para 0): ") or "0"
             maximo = input("Preço máximo (Enter para sem limite): ") or "999999"
             cursor = conn.cursor()
             cursor.execute("""
@@ -40,22 +43,24 @@ def ver_produtos(conn):
                 WHERE Prec_Prod BETWEEN %s AND %s
                 ORDER BY Prec_Prod
             """, (minimo, maximo))
+            print("\n--- Produtos no Preço Selecionado ---")
             for p in cursor.fetchall():
                 print(f"[{p[0]}] {p[1]} - R${p[2]:.2f} | Marca: {p[3]}")
 
         elif opcao == "4":
-            nome = input("Nome do produto: ")
+            nome = input("\nNome do produto: ")
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT Prod_ID, Nome_Prod, Prec_Prod, Marca_Prod
                 FROM PRODUTO
                 WHERE Nome_Prod ILIKE %s
             """, (f"%{nome}%",))
+            print("\n--- Resultados da Busca ---")
             for p in cursor.fetchall():
                 print(f"[{p[0]}] {p[1]} - R${p[2]:.2f} | Marca: {p[3]}")
 
         elif opcao == "5":
-            prod_id = input("ID do produto: ")
+            prod_id = input("\nID do produto: ")
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT p.Nome_Prod, p.Prec_Prod, p.Desc_Prod, p.Marca_Prod,
@@ -66,29 +71,30 @@ def ver_produtos(conn):
             """, (prod_id,))
             p = cursor.fetchone()
             if p:
-                print(f"\nNome:     {p[0]}")
+                print(f"\n--- Detalhes do Produto ---")
+                print(f"Nome:     {p[0]}")
                 print(f"Preço:    R${p[1]:.2f}")
-                print(f"Descrição:{p[2]}")
+                print(f"Descrição: {p[2]}")
                 print(f"Marca:    {p[3]}")
                 print(f"Modelo:   {p[4]}")
                 print(f"Estoque:  {p[5]}")
                 print(f"Loja:     {p[6]}")
             else:
-                print("Produto não encontrado.")
+                print("\nProduto não encontrado.")
 
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")
 
 def gerenciar_produtos(conn):
     while True:
+        print("\n=== GERENCIAR PRODUTOS ===")
         print("[1] Cadastrar produto")
         print("[2] Editar produto")
         print("[3] Remover produto")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
                 nome      = input("Nome: ")

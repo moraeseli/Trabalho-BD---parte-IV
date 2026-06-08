@@ -6,8 +6,7 @@ def analise_desempenho(conn):
         print("[3] Produtos mais vendidos")
         print("[4] Melhores lojas por avaliação")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             cursor = conn.cursor()
@@ -74,4 +73,4 @@ def analise_desempenho(conn):
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")

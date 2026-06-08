@@ -1,5 +1,5 @@
 def confirmar_pagamento(conn):
-    id_usuario = input("Seu ID de usuário: ")
+    id_usuario = input("\nSeu ID de usuário: ")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -11,16 +11,17 @@ def confirmar_pagamento(conn):
     pedidos = cursor.fetchall()
 
     if not pedidos:
-        print("Nenhum pagamento pendente.")
+        print("\nNenhum pagamento pendente.")
         return
 
+    print("\n--- Pagamentos Pendentes ---")
     for p in pedidos:
         print(f"Pedido #{p[0]} | R${p[2]:.2f} via {p[3]}")
 
-    ped_id = int(input("ID do pedido a confirmar: "))
+    ped_id = int(input("\nID do pedido a confirmar: "))
     selecionado = next((p for p in pedidos if p[0] == ped_id), None)
     if not selecionado:
-        print("Pedido não encontrado.")
+        print("\nPedido não encontrado.")
         return
 
     try:
@@ -33,7 +34,7 @@ def confirmar_pagamento(conn):
             WHERE ID_Pedd = %s
         """, (ped_id,))
         conn.commit()
-        print("Pagamento confirmado!")
+        print("\nPagamento confirmado!")
     except Exception as e:
         conn.rollback()
-        print(f"Erro: {e}")
+        print(f"\nErro: {e}")

@@ -1,19 +1,20 @@
 def fazer_pedido(conn):
-    id_usuario = input("Seu ID de usuário: ")
+    id_usuario = input("\nSeu ID de usuário: ")
 
     cursor = conn.cursor()
     cursor.execute("SELECT Prod_ID, Nome_Prod, Prec_Prod, Estoq_Prod FROM PRODUTO WHERE Estoq_Prod > 0")
     produtos = cursor.fetchall()
+    print("\n--- Produtos Disponíveis ---")
     for p in produtos:
         print(f"[{p[0]}] {p[1]} - R${p[2]:.2f} | Estoque: {p[3]}")
 
-    prod_id = input("ID do produto: ")
+    prod_id = input("\nID do produto: ")
     quantidade = input("Quantidade: ")
 
     cursor.execute("SELECT Estoq_Prod, Prec_Prod FROM PRODUTO WHERE Prod_ID = %s", (prod_id,))
     produto = cursor.fetchone()
     if not produto or int(quantidade) > produto[0]:
-        print("Estoque insuficiente.")
+        print("\nEstoque insuficiente.")
         return
 
     cursor.execute("""
@@ -25,25 +26,25 @@ def fazer_pedido(conn):
     enderecos = cursor.fetchall()
 
     if not enderecos:
-        print("Nenhum endereço cadastrado. Cadastre um endereço antes de fazer um pedido.")
+        print("\nNenhum endereço cadastrado. Cadastre um endereço antes de fazer um pedido.")
         return
 
-    print("\nEndereços cadastrados:")
+    print("\nEnd ereços cadastrados:")
     for e in enderecos:
         print(f"[{e[0]}] {e[1]}, {e[2]} - {e[3]}/{e[4]} - {e[5]} - CEP {e[6]}")
 
-    endereco_id = input("ID do endereço de entrega: ")
+    endereco_id = input("\nID do endereço de entrega: ")
     if not any(str(e[0]) == endereco_id for e in enderecos):
-        print("Endereço inválido.")
+        print("\nEndereço inválido.")
         return
 
-    print("\nForma de pagamento:")
+    print("\n--- Forma de Pagamento ---")
     print("[1] Pix")
     print("[2] Crédito")
     print("[3] Débito")
     print("[4] Boleto")
     formas = {"1": "Pix", "2": "Crédito", "3": "Débito", "4": "Boleto"}
-    forma = formas.get(input("Escolha: "), "Pix")
+    forma = formas.get(input("\nEscolha: "), "Pix")
     valor = produto[1] * int(quantidade)
 
     cursor.execute("""
@@ -58,13 +59,13 @@ def fazer_pedido(conn):
     valor_final = valor
 
     if cupons:
-        print("\nCupons disponíveis:")
+        print("\n--- Cupões Disponíveis ---")
         for c in cupons:
             print(f"[{c[0]}] Mínimo R${c[1]:.2f} - {c[3]} {c[2]}{'%' if c[3] == 'Porcent' else ''}")
 
-        usar_cupom = input("Deseja usar um cupom? [s/N]: ").strip().lower()
+        usar_cupom = input("\nDeseja usar um cupom? [s/n]: ").strip().lower()
         if usar_cupom == 's':
-            cupom_id = input("ID do cupom: ")
+            cupom_id = input("\nID do cupom: ")
             selected = next((c for c in cupons if str(c[0]) == cupom_id), None)
             if selected:
                 if selected[3] == 'Fixo':
@@ -78,7 +79,7 @@ def fazer_pedido(conn):
                 valor_final = valor - desconto
                 print(f"Desconto aplicado: R${desconto:.2f}. Total final: R${valor_final:.2f}")
             else:
-                print("Cupom inválido. Nenhum desconto será aplicado.")
+                print("\nCupom inválido. Nenhum desconto será aplicado.")
                 cupom_id = None
     else:
         print("\nNenhum cupom disponível para esse valor de pedido.")
@@ -111,16 +112,16 @@ def fazer_pedido(conn):
         print(f"\nPedido #{id_pedd} criado! Total: R${valor_final:.2f}")
     except Exception as e:
         conn.rollback()
-        print(f"Erro ao criar pedido: {e}")
+        print(f"\nErro ao criar pedido: {e}")
 
 def verificar_pedidos(conn):
     while True:
+        print("\n=== VERIFICAR PEDIDOS ===")
         print("[1] Listar todos os pedidos")
         print("[2] Filtrar por status")
         print("[3] Atualizar status de um pedido")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             cursor = conn.cursor()
@@ -132,6 +133,7 @@ def verificar_pedidos(conn):
                 JOIN PAGAMENTO pg ON pg.ID_Pag  = p.fk_PAGAMENTO
                 ORDER BY p.timestamp_Pedd DESC
             """)
+            print("\n--- Lista de Pedidos ---")
             for p in cursor.fetchall():
                 print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} {p[3]} | {p[4]} | {p[5]}")
 
@@ -149,12 +151,13 @@ def verificar_pedidos(conn):
             """, (status,))
             pedidos = cursor.fetchall()
             if not pedidos:
-                print("Nenhum pedido encontrado.")
+                print("\nNenhum pedido encontrado.")
+            print('\n')
             for p in pedidos:
                 print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} | {p[3]} | {p[4]}")
 
         elif opcao == "3":
-            ped_id = int(input("ID do pedido: "))
+            ped_id = int(input("\nID do pedido: "))
             cursor = conn.cursor()
             cursor.execute("SELECT Stat_Pedd FROM PEDIDO WHERE ID_Pedd = %s", (ped_id,))
             pedido = cursor.fetchone()
@@ -162,7 +165,7 @@ def verificar_pedidos(conn):
                 print("Pedido não encontrado.")
                 continue
 
-            print(f"Status atual: {pedido[0]}")
+            print(f"\nStatus atual: {pedido[0]}")
             print("Novo status: em processamento / pago / enviado / entregue / cancelado")
             novo_status = input("Status: ")
 
@@ -171,10 +174,10 @@ def verificar_pedidos(conn):
                     UPDATE PEDIDO SET Stat_Pedd = %s WHERE ID_Pedd = %s
                 """, (novo_status, ped_id))
                 conn.commit()
-                print("Status atualizado!")
+                print("\nStatus atualizado!")
             except Exception as e:
                 conn.rollback()
-                print(f"Erro: {e}")
+                print(f"\nErro: {e}")
 
         elif opcao == "0":
             break
@@ -182,14 +185,14 @@ def verificar_pedidos(conn):
             print("Opção inválida.")
 
 def pedidos_loja(conn):
-    loja_id = int(input("ID da loja: "))
+    loja_id = int(input("\nID da loja: "))
     while True:
+        print("\n=== MEUS PEDIDOS ===")
         print("[1] Ver todos os meus pedidos")
         print("[2] Filtrar por status")
         print("[3] Atualizar status de um pedido")
         print("[0] Voltar")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             cursor = conn.cursor()
@@ -206,12 +209,14 @@ def pedidos_loja(conn):
             """, (loja_id,))
             pedidos = cursor.fetchall()
             if not pedidos:
-                print("Nenhum pedido encontrado.")
-            for p in pedidos:
-                print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} {p[3]} | {p[4]} | {p[5]}")
+                print("\nNenhum pedido encontrado.")
+            else:
+                print("\n--- Meus Pedidos ---")
+                for p in pedidos:
+                    print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} {p[3]} | {p[4]} | {p[5]}")
 
         elif opcao == "2":
-            status = input("Status (em processamento/pago/enviado/entregue/cancelado): ")
+            status = input("\nStatus (em processamento/pago/enviado/entregue/cancelado): ")
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT DISTINCT p.ID_Pedd, u.Nome_User, pg.Val_Pag, p.Stat_Pedd, p.timestamp_Pedd
@@ -225,12 +230,14 @@ def pedidos_loja(conn):
             """, (loja_id, status))
             pedidos = cursor.fetchall()
             if not pedidos:
-                print("Nenhum pedido encontrado.")
-            for p in pedidos:
-                print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} | {p[3]} | {p[4]}")
+                print("\nNenhum pedido encontrado.")
+            else:
+                print("\n--- Pedidos por Status ---")
+                for p in pedidos:
+                    print(f"[{p[0]}] {p[1]} | R${p[2]:.2f} | {p[3]} | {p[4]}")
 
         elif opcao == "3":
-            ped_id = int(input("ID do pedido: "))
+            ped_id = int(input("\nID do pedido: "))
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT p.Stat_Pedd FROM PEDIDO p
@@ -240,21 +247,21 @@ def pedidos_loja(conn):
             """, (ped_id, loja_id))
             pedido = cursor.fetchone()
             if not pedido:
-                print("Pedido não encontrado.")
+                print("\nPedido não encontrado.")
                 continue
 
-            print(f"Status atual: {pedido[0]}")
-            novo_status = input("Novo status (em processamento/pago/enviado/entregue/cancelado): ")
+            print(f"\nStatus atual: {pedido[0]}")
+            novo_status = input("\nNovo status (em processamento/pago/enviado/entregue/cancelado): ")
 
             try:
                 cursor.execute("""
                     UPDATE PEDIDO SET Stat_Pedd = %s WHERE ID_Pedd = %s
                 """, (novo_status, ped_id))
                 conn.commit()
-                print("Status atualizado!")
+                print("\nStatus atualizado!")
             except Exception as e:
                 conn.rollback()
-                print(f"Erro: {e}")
+                print(f"\nErro: {e}")
 
         elif opcao == "0":
             break

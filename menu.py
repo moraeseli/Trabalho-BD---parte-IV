@@ -9,14 +9,14 @@ from payments import confirmar_pagamento
 
 def menu_usuario(conn):
     while True:
+        print("\n=== MENU USUÁRIO ===")
         print("[1] Ver produtos")
         print("[2] Fazer pedido")
         print("[3] Avaliar produto ou loja")
         print("[4] Chat com a loja")
         print("[5] Confirmar pagamento")
         print("[0] Sair")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             ver_produtos(conn)
@@ -31,19 +31,19 @@ def menu_usuario(conn):
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")
 
 
 def menu_admin(conn):
     while True:
+        print("\n=== MENU ADMINISTRADOR ===")
         print("[1] Gerenciar lojas")
         print("[2] Gerenciar produtos")
         print("[3] Verificar pedidos")
         print("[4] Gerenciar assinaturas")
         print("[5] Análise de desempenho")
         print("[0] Sair")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             gerenciar_lojas(conn)
@@ -58,7 +58,7 @@ def menu_admin(conn):
         elif opcao == "0":
             break
         else:
-            print("Opção inválida.")
+            print("\nOpção inválida.")
 
 
 def menu_loja(conn):
@@ -69,8 +69,7 @@ def menu_loja(conn):
         print("[3] Responder chats")
         print("[4] Ver minhas avaliações")
         print("[0] Sair")
-
-        opcao = input("Escolha: ")
+        opcao = input("\nEscolha: ")
 
         if opcao == "1":
             gerenciar_produtos_loja(conn)

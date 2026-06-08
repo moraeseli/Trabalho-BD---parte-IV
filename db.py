@@ -7,5 +7,5 @@ def get_connection():
         port=5432,
         dbname="bd_amazon",
         user="postgres",
-        password="ELia$236"
+        password="sua_senha"
     )

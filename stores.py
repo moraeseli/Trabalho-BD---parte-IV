@@ -41,22 +41,6 @@ def gerenciar_lojas(conn):
                 print("Loja não encontrada.")
                 continue
 
-            # Verifica dependências antes de tentar deletar
-            cursor.execute("SELECT COUNT(*) FROM PRODUTO WHERE fk_LOJA = %s", (loja_id,))
-            if cursor.fetchone()[0] > 0:
-                print("Erro: esta loja possui produtos cadastrados. Remova-os primeiro.")
-                continue
-
-            cursor.execute("SELECT COUNT(*) FROM CHAT WHERE fk_LOJA = %s", (loja_id,))
-            if cursor.fetchone()[0] > 0:
-                print("Erro: esta loja possui chats vinculados. Encerre-os primeiro.")
-                continue
-
-            cursor.execute("SELECT COUNT(*) FROM AVALIACAO WHERE fk_LOJA = %s", (loja_id,))
-            if cursor.fetchone()[0] > 0:
-                print("Erro: esta loja possui avaliações registradas. Remova-as primeiro.")
-                continue
-
             confirmacao = input(f"Confirma remoção de '{loja[0]}'? (s/n): ")
             if confirmacao.lower() != "s":
                 print("Cancelado.")

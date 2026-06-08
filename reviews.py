@@ -2,7 +2,6 @@ def avaliar(conn):
     id_usuario = input("\nSeu ID de usuário: ")
     cursor = conn.cursor()
 
-    # Valida usuário
     cursor.execute("SELECT ID_User FROM USUARIO WHERE ID_User = %s", (id_usuario,))
     if not cursor.fetchone():
         print("\nUsuário não encontrado.")
@@ -14,7 +13,6 @@ def avaliar(conn):
     print("[2] Loja")
     tipo = input("\nEscolha: ")
 
-    # Valida nota
     try:
         nota = int(input("\nNota (1 a 5): "))
         if nota < 1 or nota > 5:
@@ -24,7 +22,7 @@ def avaliar(conn):
         print("\nNota inválida.")
         return
 
-    comentário = input("\nComentário: ")
+    comentario = input("\nComentário: ")
 
     try:
         if tipo == "1":

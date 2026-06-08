@@ -29,7 +29,7 @@ def fazer_pedido(conn):
         print("\nNenhum endereço cadastrado. Cadastre um endereço antes de fazer um pedido.")
         return
 
-    print("\nEnd ereços cadastrados:")
+    print("\nEndereços cadastrados:")
     for e in enderecos:
         print(f"[{e[0]}] {e[1]}, {e[2]} - {e[3]}/{e[4]} - {e[5]} - CEP {e[6]}")
 
@@ -59,7 +59,7 @@ def fazer_pedido(conn):
     valor_final = valor
 
     if cupons:
-        print("\n--- Cupões Disponíveis ---")
+        print("\n--- Cupons Disponíveis ---")
         for c in cupons:
             print(f"[{c[0]}] Mínimo R${c[1]:.2f} - {c[3]} {c[2]}{'%' if c[3] == 'Porcent' else ''}")
 
@@ -71,7 +71,7 @@ def fazer_pedido(conn):
                 if selected[3] == 'Fixo':
                     desconto = float(selected[2])
                 elif selected[3] == 'Porcent':
-                    desconto = valor * float(selected[2])
+                    desconto = valor * (float(selected[2])/100)
                 else:
                     desconto = 0.0
 

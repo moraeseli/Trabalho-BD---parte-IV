@@ -113,9 +113,9 @@ def gerenciar_produtos(conn):
 
                 try:
                     cursor.execute("""
-                        INSERT INTO PRODUTO (Nome_Prod, Prec_Prod, Desc_Prod, Marca_Prod,
+                        INSERT INTO PRODUTO (Prod_ID,Nome_Prod, Prec_Prod, Desc_Prod, Marca_Prod,
                                             Model_Prod, Estoq_Prod, Tipo_Prod, fk_LOJA)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        VALUES (nextval('produto_seq'),%s, %s, %s, %s, %s, %s, %s, %s)
                     """, (nome, preco, descricao, marca, modelo, estoque, tipo, loja_id))
                     conn.commit()
                     print("Produto cadastrado!")

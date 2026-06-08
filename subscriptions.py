@@ -24,8 +24,8 @@ def gerenciar_assinaturas(conn):
             try:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    INSERT INTO ASSINATURA (Nome_Ass, Prec_Ass, Free_Frete)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO ASSINATURA (ID_Ass,Nome_Ass, Prec_Ass, Free_Frete)
+                    VALUES (nextval('assinatura_seq'),%s, %s, %s)
                 """, (nome, preco, frete))
                 conn.commit()
                 print("\nAssinatura criada!")
@@ -43,10 +43,10 @@ def gerenciar_assinaturas(conn):
                 continue
 
             print("\nDeixe em branco para manter o valor atual.")
-            nome  = input(f"Nome [{a[1]}]: ")  or a[1]
-            preco = input(f"Preço [{a[2]}]: ") or a[2]
-            frete = input(f"Frete grátis [{a[3]}] (s/n): ")
-            frete = a[3] if frete == "" else frete.lower() == "s"
+            nome  = input(f"Nome [{a[3]}]: ")  or a[3]
+            preco = input(f"Preço [{a[1]}]: ") or a[1]
+            frete = input(f"Frete grátis [{a[2]}] (s/n): ")
+            frete = a[2] if frete == "" else frete.lower() == "s"
 
             try:
                 cursor.execute("""

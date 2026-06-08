@@ -23,8 +23,8 @@ def gerenciar_lojas(conn):
             try:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    INSERT INTO LOJA (Nome_Loja, Email_Loja, CPF_CNPJ_Loja, Reput_Loja, Data_Criac_Loja)
-                    VALUES (%s, %s, %s, 0.0, CURRENT_DATE)
+                    INSERT INTO LOJA (ID_Loja,Nome_Loja, Email_Loja, CPF_CNPJ_Loja, Reput_Loja, Data_Criac_Loja)
+                    VALUES (nextval('loja_seq'),%s, %s, %s, 0.0, CURRENT_DATE)
                 """, (nome, email, cpf_cnpj))
                 conn.commit()
                 print("\nLoja cadastrada!")

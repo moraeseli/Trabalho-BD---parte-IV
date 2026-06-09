@@ -6,6 +6,7 @@ from analytics import analise_desempenho
 from reviews import avaliar, avaliacoes_loja
 from chat import chat, chats_loja
 from payments import confirmar_pagamento
+from adresses import registrar_endereco
 
 def menu_usuario(conn):
     while True:
@@ -28,6 +29,8 @@ def menu_usuario(conn):
             chat(conn)
         elif opcao == "5":
             confirmar_pagamento(conn)
+        elif opcao == "6":
+            registrar_endereco(conn)
         elif opcao == "0":
             break
         else:

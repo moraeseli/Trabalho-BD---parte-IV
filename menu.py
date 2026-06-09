@@ -16,6 +16,7 @@ def menu_usuario(conn):
         print("[3] Avaliar produto ou loja")
         print("[4] Chat com a loja")
         print("[5] Confirmar pagamento")
+        print("[6] Registrar novo endereço")
         print("[0] Sair")
         opcao = input("\nEscolha: ")
 
